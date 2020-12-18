@@ -1,31 +1,24 @@
-FROM 0x01be/base
+FROM 0x01be/gds2pov:build as build
 
-ENV REVISION=master
-RUN apk add --no-cache --virtual gds2pov-build-dependencies \
-    git \
-    build-base \
-    cmake \
-    libx11-dev \
-    python3-dev \
-    cairo-dev \
-    mesa-dev \
-    glu-dev \
-    gtk+3.0-dev \
-    gtk+2.0-dev &&\
-    apk add --no-cache --virtual gds2pov-edge-build-dependencies \
+FROM 0x01be/xpra
+
+COPY --from=build /opt/gds2pov/ /opt/gds2pov/
+
+RUN apk add --no-cache --virtual gds2pov-runtime-dependencies \
+    libx11 \
+    python3 \
+    cairo \
+    mesa \
+    glu \
+    gtk+3.0 \
+    gtk+2.0 &&\
+    apk add --no-cache --virtual gds2pov-edge-runtime-dependencies \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-    wxgtk3-dev &&\
-    git clone --depth 1 --branch ${REVISION} https://github.com/ralight/gds2pov.git /gds2pov
+    wxgtk3
 
-WORKDIR /gds2pov/build
-
-RUN cmake \
-    -DCMAKE_INSTALL_PREFIX=/opt/gds2pov \
-    -DwxWidgets_CONFIG_EXECUTABLE=/usr/bin/wx-config-gtk3 \
-    .. &&\
-    make
-
-RUN make install
+USER ${USER}
+ENV PATH=${PATH}:/opt/gds2pov/bin \
+    COMMAND=gds2pov
 
