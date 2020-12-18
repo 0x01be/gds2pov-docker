@@ -20,5 +20,6 @@ RUN apk add --no-cache --virtual gds2pov-runtime-dependencies \
 
 USER ${USER}
 ENV PATH=${PATH}:/opt/gds2pov/bin \
+    LD_LIBRARY_PATH=/lib:/usr/lib:/opt/gds2pov/lib \
     COMMAND=gds2pov
 
